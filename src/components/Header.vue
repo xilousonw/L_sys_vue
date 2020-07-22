@@ -1,13 +1,13 @@
 <template>
     <div class="header">
         <div class="slogan">
-            <p>帮助有志向的年轻人通过努力学习获得体面的工作和生活</p>
+            <p> 帮助有志向的年轻人通过努力学习获得体面的工作和生活</p>
         </div>
         <div class="nav">
             <ul class="left-part">
                 <li class="logo">
                     <router-link to="/">
-                        <img src="../assets/img/logo.svg" alt="">
+                        <img src="../assets/img/head-logo.svg" alt="">
                     </router-link>
                 </li>
                 <li class="ele">
@@ -22,54 +22,88 @@
             </ul>
 
             <div class="right-part">
-                <div>
-                    <span @click="login">登录</span>
+                <div v-if="!username">
+                    <span @click="put_login">登录</span>
                     <span class="line">|</span>
-                    <span>注册</span>
+                    <span @click="put_register">注册</span>
                 </div>
-                <Login @xxx="close_login" v-if="is_login"/>
-    		</div>
+                <div v-else>
+                    <span >{{username}}</span>
+                    <span class="line">|</span>
+                    <span @click="logout">注销</span>
+                </div>
+            </div>
+            <Login v-if="is_login" @close="close_login" @go="put_register" @loginsuccess="login_success"/>
+            <Register v-if="is_register" @close="close_register" @go="put_login"/>
         </div>
-
     </div>
 
 </template>
 
 <script>
-
-    import Login from "./Login";
-    import Register from "./Register";
+    import Login from './Login'
+    import Register from './Register'
 
     export default {
         name: "Header",
         data() {
             return {
                 url_path: sessionStorage.url_path || '/',
-                is_login:false
+                is_login: false,
+                is_register: false,
+                token: '',
+                username: ''
             }
         },
         methods: {
             goPage(url_path) {
+                // 传入的路由如果不是当前所在路径，就跳转
                 if (this.url_path !== url_path) {
                     this.$router.push(url_path);
                 }
                 sessionStorage.url_path = url_path;
             },
-             login(){
-                this.is_login=true
+            put_login() {
+                this.is_login = true;
+                this.is_register = false;
             },
-            close_login(){
-                this.is_login=false
-            }
+            put_register() {
+                this.is_login = false;
+                this.is_register = true;
+            },
+            close_login() {
+                this.is_login = false;
+            },
+            close_register() {
+                this.is_register = false;
+            },
+            login_success(){
+                this.username=this.$cookies.get('username')
+                this.token=this.$cookies.get('token')
+            },
+            logout(){
+                //清除cookie
+                this.$cookies.remove('token')
+                this.$cookies.remove('username')
+                //把两个变量值为空
+                this.username=''
+                this.token=''
+            },
         },
         created() {
             sessionStorage.url_path = this.$route.path;
             this.url_path = this.$route.path;
+
+            //当页面一创建，我就去cookie中取token和username
+            this.username = this.$cookies.get('username')   //取到就有值，取不到就为空
+            this.token = this.$cookies.get('token')   //取到就有值，取不到就为空
         },
         components: {
             Login,
             Register
         }
+
+
     }
 </script>
 

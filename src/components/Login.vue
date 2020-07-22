@@ -23,7 +23,7 @@
                             clearable
                             show-password>
                     </el-input>
-                    <el-button type="primary">登录</el-button>
+                    <el-button type="primary" @click="login_password">登录</el-button>
                 </el-form>
                 <el-form v-if="login_method === 'is_sms'">
                     <el-input
@@ -107,7 +107,36 @@
                         this.sms_interval = `${sms_interval_time}秒后再发`;
                     }
                 }, 1000);
-            }
+            },
+
+            login_password() {
+                if (this.username && this.password) {
+                    //发送请求
+                    this.$axios.post(this.$settings.base_url + '/user/login/', {
+                        username: this.username,
+                        password: this.password
+
+
+                    }).then(response => {
+                        console.log(response.data)
+                        //把用户信息保存到cookie中
+                        // this.$cookies.set('key','value','过期时间,按s计')
+                        this.$cookies.set('token',response.data.token,'7d')
+                        this.$cookies.set('username',response.data.username,'7d')
+                        //关闭登录窗口(子传父)
+                        this.$emit('close')
+                        //给父组件，Head传递一个事件，让它从cookie中取出token和username
+                        this.$emit('loginsuccess')
+                    }).catch(errors => {
+                    })
+                } else {
+                    this.$message({
+                        message: '用户名或密码必须填哦',
+                        type: 'warning',
+
+                    });
+                }
+            },
         }
     }
 </script>
