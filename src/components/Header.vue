@@ -1,42 +1,42 @@
 <template>
-    <div class="header">
-        <div class="slogan">
-            <p> 帮助有志向的年轻人通过努力学习获得体面的工作和生活</p>
-        </div>
-        <div class="nav">
-            <ul class="left-part">
-                <li class="logo">
-                    <router-link to="/">
-                        <img src="../assets/img/head-logo.svg" alt="">
-                    </router-link>
-                </li>
-                <li class="ele">
-                    <span @click="goPage('/free-course')" :class="{active: url_path === '/free-course'}">免费课</span>
-                </li>
-                <li class="ele">
-                    <span @click="goPage('/actual-course')" :class="{active: url_path === '/actual-course'}">实战课</span>
-                </li>
-                <li class="ele">
-                    <span @click="goPage('/light-course')" :class="{active: url_path === '/light-course'}">轻课</span>
-                </li>
-            </ul>
-
-            <div class="right-part">
-                <div v-if="!username">
-                    <span @click="put_login">登录</span>
-                    <span class="line">|</span>
-                    <span @click="put_register">注册</span>
-                </div>
-                <div v-else>
-                    <span >{{username}}</span>
-                    <span class="line">|</span>
-                    <span @click="logout">注销</span>
-                </div>
-            </div>
-            <Login v-if="is_login" @close="close_login" @go="put_register" @loginsuccess="login_success"/>
-            <Register v-if="is_register" @close="close_register" @go="put_login"/>
-        </div>
+<div class="header">
+    <div class="slogan">
+        <p>帮助有志向的年轻人通过努力学习获得体面的工作和生活</p>
     </div>
+    <div class="nav">
+        <ul class="left-part">
+            <li class="logo">
+                <router-link to="/">
+                    <img src="../assets/img/head-logo.svg" alt="">
+                </router-link>
+            </li>
+            <li class="ele">
+                <span @click="goPage('/free-course')" :class="{active: url_path === '/free-course'}">免费课</span>
+            </li>
+            <li class="ele">
+                <span @click="goPage('/actual-course')" :class="{active: url_path === '/actual-course'}">实战课</span>
+            </li>
+            <li class="ele">
+                <span @click="goPage('/light-course')" :class="{active: url_path === '/light-course'}">轻课</span>
+            </li>
+        </ul>
+
+        <div class="right-part">
+            <div v-if="!username">
+                <span @click="put_login">登录</span>
+                <span class="line">|</span>
+                <span @click="put_register">注册</span>
+            </div>
+            <div v-else>
+                <span >{{username}}</span>
+                <span class="line">|</span>
+                <span @click="logout">注销</span>
+            </div>
+        </div>
+        <Login v-if="is_login" @close="close_login" @go="put_register" @loginsuccess="login_success"/>
+        <Register v-if="is_register" @close="close_register" @go="put_login"/>
+    </div>
+</div>
 
 </template>
 

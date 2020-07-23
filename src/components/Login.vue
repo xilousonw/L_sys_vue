@@ -42,7 +42,7 @@
                             <span class="sms" @click="send_sms">{{ sms_interval }}</span>
                         </template>
                     </el-input>
-                    <el-button type="primary">登录</el-button>
+                    <el-button type="primary" @click="code_login">登录</el-button>
                 </el-form>
                 <div class="foot">
                     <span @click="go_register">立即注册</span>
@@ -78,6 +78,7 @@
             },
             check_mobile() {
                 if (!this.mobile) return;
+                //字符串.match(/正则表达式/)
                 if (!this.mobile.match(/^1[3-9][0-9]{9}$/)) {
                     this.$message({
                         message: '手机号有误',
@@ -89,7 +90,26 @@
                     });
                     return false;
                 }
-                this.is_send = true;
+                //发送axios请求
+                // this.$axios.get(this.$settings.base_url+'/user/check_telephone/telephone='+this.mobile})
+                this.$axios.get(this.$settings.base_url + '/user/check_telephone/', {params: {telephone: this.mobile}}).then(response => {
+                    if (response.data.code) {
+                        //手机号存在，允许发送验证码
+                        this.is_send = true;
+                    } else {
+                        this.$message({
+                            message: '手机号不存在',
+                            type: 'warning',
+                            duration: 1000,
+                            onClose: () => {
+                                this.mobile = '';
+                            }
+                        });
+                    }
+                }).catch(error => {
+                    console.log(error)
+                })
+
             },
             send_sms() {
 
@@ -97,9 +117,25 @@
                 this.is_send = false;
                 let sms_interval_time = 60;
                 this.sms_interval = "发送中...";
+
+                this.$axios.get(this.$settings.base_url + '/user/send/', {params: {'telephone': this.mobile}})
+                    .then(response => {
+                        if (response.data.code) {
+                            this.$message({
+                                message: '发送验证码成功',
+                                type: 'success',
+                                duration: 1000,
+
+                            });
+                        }
+                    })
+
+
+                // setInterval(()=>{},100)
+                //定时器：每隔一秒种，把数字减一，当减到小于1，按钮又能点了，显示获取验证码
                 let timer = setInterval(() => {
                     if (sms_interval_time <= 1) {
-                        clearInterval(timer);
+                        clearInterval(timer);  //如果小于等于1，把定时器清除
                         this.sms_interval = "获取验证码";
                         this.is_send = true; // 重新回复点击发送功能的条件
                     } else {
@@ -121,8 +157,8 @@
                         console.log(response.data)
                         //把用户信息保存到cookie中
                         // this.$cookies.set('key','value','过期时间,按s计')
-                        this.$cookies.set('token',response.data.token,'7d')
-                        this.$cookies.set('username',response.data.username,'7d')
+                        this.$cookies.set('token', response.data.token, '7d')
+                        this.$cookies.set('username', response.data.username, '7d')
                         //关闭登录窗口(子传父)
                         this.$emit('close')
                         //给父组件，Head传递一个事件，让它从cookie中取出token和username
@@ -136,6 +172,35 @@
 
                     });
                 }
+            },
+            code_login() {
+
+                if (this.mobile && this.sms) {
+                    //发送请求
+                    this.$axios.post(this.$settings.base_url + '/user/code_login/', {
+                        telephone: this.mobile,
+                        code: this.sms
+
+                    }).then(response => {
+                        console.log(response.data)
+                        //把用户信息保存到cookie中
+                        // this.$cookies.set('key','value','过期时间,按s计')
+                        this.$cookies.set('token', response.data.token, '7d')
+                        this.$cookies.set('username', response.data.username, '7d')
+                        //关闭登录窗口(子传父)
+                        this.$emit('close')
+                        //给父组件，Head传递一个事件，让它从cookie中取出token和username
+                        this.$emit('loginsuccess')
+                    }).catch(errors => {
+                    })
+                } else {
+                    this.$message({
+                        message: '手机号或验证码必填',
+                        type: 'warning',
+
+                    });
+                }
+
             },
         }
     }

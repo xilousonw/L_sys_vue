@@ -9,10 +9,9 @@
 </style>
 
 <script>
-  import register from './views/register'
 
   export default {
     name:'App',
-    components:{register}
+    components:{}
   }
 </script>
